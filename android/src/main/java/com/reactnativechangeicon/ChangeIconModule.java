@@ -99,7 +99,7 @@ public class ChangeIconModule extends ReactContextBaseJavaModule implements Appl
 
     @ReactMethod
     public void killAppIfNeeded(Promise promise) {
-        if (!iconChanged || classesToKill.length === 0) {
+        if (!iconChanged || classesToKill.size() === 0) {
             promise.resolve(false);
             return;
         }
