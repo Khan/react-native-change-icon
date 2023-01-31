@@ -47,52 +47,41 @@ public class ChangeIconModule extends ReactContextBaseJavaModule implements Appl
         if (this.componentClass.isEmpty()) {
             this.componentClass = activity.getComponentName().getClassName();
         }
-        if (this.componentClass.endsWith("MainActivity")) {
-            promise.resolve("default");
-            return;
-        }
-        String[] parts = this.componentClass.split("MainActivity");
-        if (parts.length != 2) {
-            promise.reject("UNEXPECTED_COMPONENT_CLASS: " + this.componentClass);
-            return;
-        }
-
-        String currentIcon = parts[1];
-        promise.resolve(currentIcon);
+        promise.resolve(this.componentClass);
+        return;
     }
 
     @ReactMethod
-    public void changeIcon(String enableIcon, Promise promise) {
+    public void changeIcon(String iconActivityName, Promise promise) {
         final Activity activity = getCurrentActivity();
         if (activity == null) {
             promise.reject("ACTIVITY_NOT_FOUND");
             return;
         }
-        if (enableIcon == null || enableIcon.isEmpty()) {
+        if (iconActivityName == null || iconActivityName.isEmpty()) {
             promise.reject("EMPTY_ICON_STRING");
             return;
         }
         if (this.componentClass.isEmpty()) {
             this.componentClass = activity.getComponentName().getClassName();
         }
-        final String activeClass = this.packageName + ".MainActivity" + enableIcon;
-        if (this.componentClass.equals(activeClass)) {
+        if (this.componentClass.equals(iconActivityName)) {
             promise.reject("ICON_ALREADY_USED");
             return;
         }
         try {
             activity.getPackageManager().setComponentEnabledSetting(
-                new ComponentName(this.packageName, activeClass),
+                new ComponentName(this.packageName, iconActivityName),
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                 PackageManager.DONT_KILL_APP
             );
-            promise.resolve(enableIcon);
+            promise.resolve(iconActivityName);
         } catch (Exception e) {
             promise.reject("ICON_INVALID");
             return;
         }
         this.classesToKill.add(this.componentClass);
-        this.componentClass = activeClass;
+        this.componentClass = iconActivityName;
         activity.getApplication().registerActivityLifecycleCallbacks(this);
         iconChanged = true;
     }
