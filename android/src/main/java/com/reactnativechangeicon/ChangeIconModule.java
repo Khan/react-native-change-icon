@@ -97,6 +97,17 @@ public class ChangeIconModule extends ReactContextBaseJavaModule implements Appl
         iconChanged = true;
     }
 
+    @ReactMethod
+    public void killAppIfNeeded(Promise promise) {
+        if (!iconChanged || classesToKill.size() == 0) {
+            promise.resolve(false);
+            return;
+        }
+
+        completeIconChange();
+        promise.resolve(true);
+    }
+
     private void completeIconChange() {
         if (!iconChanged) return;
         final Activity activity = getCurrentActivity();
